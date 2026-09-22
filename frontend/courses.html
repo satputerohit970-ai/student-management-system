@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management - Student Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    <h2>EduManage</h2>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-category">Overview</li>
+                <li class="menu-item">
+                    <a href="dashboard.html" class="menu-link">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-menu-category">Academic Modules</li>
+                <li class="menu-item">
+                    <a href="students.html" class="menu-link">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="menu-item active">
+                    <a href="courses.html" class="menu-link">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="teachers.html" class="menu-link">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-menu-category">Performance</li>
+                <li class="menu-item">
+                    <a href="attendance.html" class="menu-link">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="marks.html" class="menu-link">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Marks & Grades</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="analytics.html" class="menu-link">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Daily Analytics</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-snippet">
+                    <div class="user-avatar user-avatar-display">A</div>
+                    <div class="user-info">
+                        <div class="user-name user-name-display">Administrator</div>
+                        <div class="user-role">Super Admin</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-toggle-btn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h1>Course Management</h1>
+                        <p>Manage curriculum, degree programs, and course durations</p>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="datetime-badge" id="live-clock">
+                        <i class="fa-regular fa-clock"></i> Loading date...
+                    </div>
+                    <button class="btn-logout" title="Sign out of system">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <main class="content-body">
+                <div class="table-toolbar">
+                    <div>
+                        <button id="btn-add-course" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> Add New Course
+                        </button>
+                    </div>
+                    <span id="courses-count-badge" class="badge badge-course">0 course(s) available</span>
+                </div>
+
+                <!-- Courses Table Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--primary);"></i>
+                            All Courses & Degrees
+                        </h3>
+                    </div>
+
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive" style="border: none;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Duration</th>
+                                        <th>Description</th>
+                                        <th>Enrolled Students</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="courses-tbody">
+                                    <tr>
+                                        <td colspan="6" class="empty-state">
+                                            <i class="fa-solid fa-spinner fa-spin"></i>
+                                            <h4>Loading courses...</h4>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Course Modal -->
+    <div class="modal-overlay" id="course-form-modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="course-modal-title">Add New Course</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+
+            <form id="course-form">
+                <div class="modal-body">
+                    <input type="hidden" id="course-pk-id">
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="course-code">Course Code <span class="required">*</span></label>
+                            <input type="text" id="course-code" class="form-control" placeholder="e.g. CS101" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="course-duration">Duration <span class="required">*</span></label>
+                            <input type="text" id="course-duration" class="form-control" placeholder="e.g. 4 Years / 6 Months" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="course-name">Course Name <span class="required">*</span></label>
+                            <input type="text" id="course-name" class="form-control" placeholder="e.g. Bachelor of Technology in Computer Science" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="course-description">Description</label>
+                            <textarea id="course-description" class="form-control" placeholder="Brief outline of course syllabus and objectives..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+                    <button type="submit" id="btn-save-course" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Course
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Course Confirmation Modal -->
+    <div class="modal-overlay" id="course-delete-modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h3>Confirm Deletion</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 14px; color: var(--text-secondary);">
+                    Are you sure you want to delete course <strong id="delete-course-name"></strong>?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+                <button type="button" id="btn-confirm-delete-course" class="btn btn-danger">
+                    <i class="fa-solid fa-trash"></i> Delete Course
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/courses.js"></script>
+</body>
+</html>

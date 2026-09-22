@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management - Student Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    <h2>EduManage</h2>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-category">Overview</li>
+                <li class="menu-item">
+                    <a href="dashboard.html" class="menu-link">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-menu-category">Academic Modules</li>
+                <li class="menu-item">
+                    <a href="students.html" class="menu-link">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="courses.html" class="menu-link">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="teachers.html" class="menu-link">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-menu-category">Performance</li>
+                <li class="menu-item active">
+                    <a href="attendance.html" class="menu-link">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="marks.html" class="menu-link">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Marks & Grades</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-snippet">
+                    <div class="user-avatar user-avatar-display">A</div>
+                    <div class="user-info">
+                        <div class="user-name user-name-display">Administrator</div>
+                        <div class="user-role">Super Admin</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-toggle-btn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h1>Attendance Management</h1>
+                        <p>Track student presence, daily logs, and send absent alerts</p>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="datetime-badge" id="live-clock">
+                        <i class="fa-regular fa-clock"></i> Loading date...
+                    </div>
+                    <button class="btn-logout" title="Sign out of system">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <main class="content-body">
+                <!-- Toolbar & Tab Navigation -->
+                <div class="table-toolbar">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button id="tab-daily-log" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-calendar-day"></i> Daily Log
+                        </button>
+                        <button id="tab-student-summary" class="btn btn-secondary btn-sm">
+                            <i class="fa-solid fa-chart-pie"></i> Student Summary (% Rate)
+                        </button>
+                        <button id="tab-message-history" class="btn btn-secondary btn-sm">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Sent Alerts History
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="btn-open-face-scanner" class="btn btn-primary" style="background: linear-gradient(135deg, #2563eb, #7c3aed); border: none;">
+                            <i class="fa-solid fa-camera"></i> Live Face Scan Attendance
+                        </button>
+                        <button id="btn-auto-alert-absentees" class="btn btn-danger">
+                            <i class="fa-solid fa-mobile-screen-button"></i> Auto-Alert All Absentees
+                        </button>
+                        <button id="btn-notify-all-absent" class="btn btn-success">
+                            <i class="fa-brands fa-whatsapp"></i> Notify Absent Students
+                        </button>
+                        <button id="btn-open-mark-modal" class="btn btn-secondary">
+                            <i class="fa-solid fa-pen"></i> Manual Attendance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: Daily Log -->
+                <div id="view-daily-log">
+                    <!-- Filters -->
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-body" style="padding: 16px 20px;">
+                            <div class="filter-group">
+                                <div>
+                                    <label class="form-label" style="margin-bottom: 4px;">Filter Date</label>
+                                    <input type="date" id="filter-attendance-date" class="form-control" style="width: auto;">
+                                </div>
+
+                                <div>
+                                    <label class="form-label" style="margin-bottom: 4px;">Filter Student</label>
+                                    <select id="filter-student" class="filter-select" style="min-width: 200px;">
+                                        <option value="">All Students</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="form-label" style="margin-bottom: 4px;">Status</label>
+                                    <select id="filter-status" class="filter-select">
+                                        <option value="">All Statuses</option>
+                                        <option value="Present">Present</option>
+                                        <option value="Absent">Absent</option>
+                                    </select>
+                                </div>
+
+                                <div style="align-self: flex-end;">
+                                    <button id="btn-reset-att-filter" class="btn btn-secondary" style="padding: 9px 14px;">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
+                                Attendance Log Entries
+                            </h3>
+                            <span id="att-count-badge" class="badge badge-course">0 record(s) found</span>
+                        </div>
+
+                        <div class="card-body" style="padding: 0;">
+                            <div class="table-responsive" style="border: none;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Student ID</th>
+                                            <th>Student Details</th>
+                                            <th>Mobile / Contact</th>
+                                            <th>Status</th>
+                                            <th>Remarks</th>
+                                            <th style="text-align: right;">Alert & Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-tbody">
+                                        <tr>
+                                            <td colspan="7" class="empty-state">
+                                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                                <h4>Loading attendance...</h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: Student Attendance Percentage Summary -->
+                <div id="view-student-summary" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-chart-line" style="color: var(--success);"></i>
+                                Overall Student Attendance Percentages
+                            </h3>
+                        </div>
+
+                        <div class="card-body" style="padding: 0;">
+                            <div class="table-responsive" style="border: none;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student ID</th>
+                                            <th>Full Name</th>
+                                            <th>Program</th>
+                                            <th>Present / Total Days</th>
+                                            <th>Absent Days</th>
+                                            <th>Attendance Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-summary-tbody">
+                                        <tr>
+                                            <td colspan="6" class="empty-state">
+                                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                                <h4>Calculating attendance summaries...</h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: Sent Alerts History -->
+                <div id="view-message-history" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-clock-rotate-left" style="color: var(--info);"></i>
+                                Dispatched Absentee Alerts History
+                            </h3>
+                            <button id="btn-refresh-history" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-arrows-rotate"></i> Refresh Log
+                            </button>
+                        </div>
+
+                        <div class="card-body" style="padding: 0;">
+                            <div class="table-responsive" style="border: none;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>Student</th>
+                                            <th>Channel</th>
+                                            <th>Contact Number / Email</th>
+                                            <th>Absence Date</th>
+                                            <th>Message Dispatched</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="notifications-tbody">
+                                        <tr>
+                                            <td colspan="7" class="empty-state">
+                                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                                <h4>Loading notification logs...</h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mark Attendance Modal -->
+    <div class="modal-overlay" id="attendance-form-modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Record Student Attendance</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+
+            <form id="attendance-form">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label" for="att-student-id">Select Student <span class="required">*</span></label>
+                            <select id="att-student-id" class="form-control" required>
+                                <option value="">Select Student</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="att-date">Attendance Date <span class="required">*</span></label>
+                            <input type="date" id="att-date" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="att-status">Attendance Status <span class="required">*</span></label>
+                            <select id="att-status" class="form-control" required>
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="att-remarks">Remarks / Reason (Optional)</label>
+                            <input type="text" id="att-remarks" class="form-control" placeholder="e.g. Attended lecture, sick leave, unexcused absence...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+                    <button type="submit" id="btn-save-att" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Attendance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Single Absent Notification Modal -->
+    <div class="modal-overlay" id="single-notify-modal">
+        <div class="modal-dialog">
+            <div class="modal-header" style="background-color: #ecfdf5; border-bottom: 1px solid #a7f3d0;">
+                <h3 style="color: #065f46; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-brands fa-whatsapp" style="color: #10b981; font-size: 22px;"></i>
+                    Send Absent Alert to Student / Parent
+                </h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="notify-student-id">
+                <input type="hidden" id="notify-date">
+
+                <div style="background-color: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+                        <div><strong>Student:</strong> <span id="notify-student-name">-</span></div>
+                        <div><strong>Student ID:</strong> <span id="notify-student-code">-</span></div>
+                        <div><strong>Mobile:</strong> <span id="notify-student-phone" style="color: var(--primary); font-weight: 600;">-</span></div>
+                        <div><strong>Date:</strong> <span id="notify-student-date">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">Message Content (Editable)</label>
+                    <textarea id="notify-message-text" class="form-control" style="min-height: 120px; font-size: 13px; line-height: 1.5;"></textarea>
+                </div>
+
+                <div style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Clicking "Send via WhatsApp" opens WhatsApp with the pre-filled message.
+                </div>
+            </div>
+
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="btn-send-email" class="btn btn-secondary">
+                        <i class="fa-solid fa-envelope"></i> Send Email
+                    </button>
+                    <button type="button" id="btn-send-whatsapp" class="btn btn-success">
+                        <i class="fa-brands fa-whatsapp"></i> Send via WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Absent Notification Modal -->
+    <div class="modal-overlay" id="bulk-notify-modal">
+        <div class="modal-dialog" style="max-width: 720px;">
+            <div class="modal-header" style="background-color: #ecfdf5; border-bottom: 1px solid #a7f3d0;">
+                <h3 style="color: #065f46; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-brands fa-whatsapp" style="color: #10b981; font-size: 22px;"></i>
+                    Notify All Absent Students
+                </h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <p style="font-size: 13.5px; color: var(--text-secondary);">
+                        Date: <strong id="bulk-notify-date-label"></strong> &bull; Total Absent Students: <span id="bulk-notify-count-badge" class="badge badge-absent">0</span>
+                    </p>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Default Message Template</label>
+                    <textarea id="bulk-template-text" class="form-control" style="min-height: 80px; font-size: 12.5px;">Dear Parent/Student, this is an official notice. {student_name} (ID: {student_id}) was marked ABSENT on {date} for {course}. Regular attendance is compulsory.</textarea>
+                </div>
+
+                <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;">Absent Students List:</h4>
+                <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+                    <table class="data-table" style="font-size: 12.5px;">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Full Name</th>
+                                <th>Mobile Number</th>
+                                <th>Course</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulk-absent-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+                <button type="button" id="btn-dispatch-all-logs" class="btn btn-success">
+                    <i class="fa-solid fa-check-double"></i> Log & Dispatch All Alerts
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Biometric Face Scanner Modal -->
+    <div class="modal-overlay" id="face-scanner-modal">
+        <div class="modal-dialog" style="max-width: 680px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #ffffff;">
+                <h3 style="color: #ffffff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-face-viewfinder" style="color: #38bdf8;"></i>
+                    Biometric Live Face Scan Attendance
+                </h3>
+                <button class="modal-close-btn" style="color: #94a3b8;">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Webcam Viewport with Futuristic HUD -->
+                <div class="scanner-viewport" id="scanner-viewport">
+                    <video id="webcam-preview" class="scanner-video" autoplay playsinline muted></video>
+                    
+                    <div class="scanner-hud-overlay">
+                        <div class="scanner-target-box" id="scanner-target-box">
+                            <div class="scanner-corner corner-tl"></div>
+                            <div class="scanner-corner corner-tr"></div>
+                            <div class="scanner-corner corner-bl"></div>
+                            <div class="scanner-corner corner-br"></div>
+                            <div class="scanner-laser" id="scanner-laser"></div>
+                        </div>
+                    </div>
+
+                    <div class="scanner-live-pill">
+                        LIVE CAMERA HUD
+                    </div>
+
+                    <!-- Camera placeholder when off -->
+                    <div id="camera-off-placeholder" style="position: absolute; text-align: center; color: #94a3b8; pointer-events: none;">
+                        <i class="fa-solid fa-video-slash" style="font-size: 40px; margin-bottom: 12px; color: #64748b;"></i>
+                        <p style="font-size: 13px;">Camera Inactive. Click "Start Camera" to initialize scanner.</p>
+                    </div>
+                </div>
+
+                <!-- Hidden Canvas for Video Frame Capture -->
+                <canvas id="webcam-canvas" style="display: none;"></canvas>
+
+                <!-- Recognition Controls -->
+                <div style="margin-top: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #f8fafc; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <div>
+                            <span style="font-weight: 700; font-size: 13.5px; color: var(--text-primary);">Camera Live Scanner</span>
+                            <div style="font-size: 11.5px; color: var(--text-muted);">Face detection runs automatically when camera is active</div>
+                        </div>
+                        <label style="font-size: 13px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+                            <input type="checkbox" id="chk-auto-scan" checked style="width: 16px; height: 16px; accent-color: var(--primary);">
+                            <span>Auto-Detect Face (Every 2s)</span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <button type="button" id="btn-toggle-camera" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fa-solid fa-video"></i> Start Camera
+                        </button>
+                        <button type="button" id="btn-scan-face-now" class="btn btn-primary" style="flex: 1;">
+                            <i class="fa-solid fa-expand"></i> Detect Face Now
+                        </button>
+                        <label class="btn btn-secondary" style="margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Test with an image file">
+                            <i class="fa-solid fa-upload"></i> Upload Photo
+                            <input type="file" id="face-test-file-input" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+
+                    <!-- Optional Target Filter -->
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label" style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
+                            Target Student (Leave on "All Registered Faces" for automatic detection)
+                        </label>
+                        <select id="face-student-select" class="form-control" style="font-size: 13px;">
+                            <option value="">-- Detect Any Registered Face Automatically --</option>
+                        </select>
+                    </div>
+
+                    <!-- Live Verification Match Display -->
+                    <div id="face-match-result" style="display: none; background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px; animation: fadeIn 0.3s ease;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div id="match-icon-circle" style="width: 44px; height: 44px; border-radius: 50%; background: #10b981; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                                    <i id="match-icon" class="fa-solid fa-check"></i>
+                                </div>
+                                <div>
+                                    <h4 id="match-student-name" style="font-size: 15px; color: #065f46; margin-bottom: 2px;">Student Name</h4>
+                                    <div style="font-size: 12px; color: #047857;">
+                                        ID: <strong id="match-student-id">STU001</strong> &bull; Program: <span id="match-student-course">-</span>
+                                    </div>
+                                    <div id="match-already-note" style="display: none; font-size: 11.5px; color: #1e40af; font-weight: 600; margin-top: 2px;">
+                                        <i class="fa-solid fa-circle-info"></i> Attendance was already recorded earlier for today.
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-present" id="match-status-badge" style="font-size: 12.5px; padding: 6px 12px;">
+                                    <i class="fa-solid fa-circle-check"></i> MARKED PRESENT
+                                </span>
+                                <div id="match-confidence-label" style="font-size: 11px; color: #059669; margin-top: 4px; font-weight: 700;">Confidence: 99.4% Match</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Scanned Students Mini-Log -->
+                    <div id="scanned-session-list" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);">
+                        <!-- Session items appended here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="btn-finish-and-alert" class="btn btn-danger" title="Finish scanning and send WhatsApp notification to absent students">
+                        <i class="fa-solid fa-bell"></i> Finish & Alert Absentees
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto Alert Absentees Results Modal -->
+    <div class="modal-overlay" id="auto-alert-modal">
+        <div class="modal-dialog" style="max-width: 680px;">
+            <div class="modal-header" style="background-color: #fee2e2; border-bottom: 1px solid #fca5a5;">
+                <h3 style="color: #991b1b; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    Mobile Absentee Alerts Dispatched
+                </h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+                    <h4 id="auto-alert-summary-title" style="color: #991b1b; font-size: 14px; margin-bottom: 4px;">Alerts Processed</h4>
+                    <p id="auto-alert-summary-sub" style="font-size: 12.5px; color: #7f1d1d; margin: 0;">Unrecorded students have been automatically marked as ABSENT and mobile notifications have been queued.</p>
+                </div>
+
+                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                    <table class="data-table" style="font-size: 12.5px;">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Student Full Name</th>
+                                <th>Mobile Number</th>
+                                <th>Dispatch Status</th>
+                                <th style="text-align: right;">Instant WhatsApp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auto-alert-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-modal-cancel">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/attendance.js"></script>
+</body>
+</html>

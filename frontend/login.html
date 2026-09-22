@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Student Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-brand">
+            <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid #bfdbfe; margin-bottom: 14px; font-weight: 700; padding: 6px 14px; font-size: 11px; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-building-columns"></i> UNIVERSITY CAMPUS PORTAL
+            </span>
+            <div class="login-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2>EduManage Portal</h2>
+            <p>Sign in to your Administrator account</p>
+        </div>
+
+        <div class="demo-credentials-box">
+            <i class="fa-solid fa-circle-info" style="margin-top: 2px;"></i>
+            <div>
+                <strong>Default Admin Credentials:</strong><br>
+                Username: <code>satputerohit970@gmail.com</code> &bull; Password: <code>rohit123</code>
+            </div>
+        </div>
+
+        <form id="login-form">
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label class="form-label" for="username">Username or Email <span class="required">*</span></label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username or email" style="padding-left: 38px;" required autofocus value="satputerohit970@gmail.com">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label class="form-label" for="password">Password <span class="required">*</span></label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" style="padding-left: 38px; padding-right: 38px;" required value="rohit123">
+                    <button type="button" id="toggle-pwd" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard
+            </button>
+            <div style="text-align: center; margin-top: 22px; font-size: 11.5px; color: var(--text-muted);">
+                <i class="fa-solid fa-lock" style="font-size: 10px;"></i> Secure Academic Administration System &bull; 2026
+            </div>
+        </form>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Password toggle
+        const toggleBtn = document.getElementById('toggle-pwd');
+        const pwdInput = document.getElementById('password');
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = pwdInput.type === 'password';
+            pwdInput.type = isPassword ? 'text' : 'password';
+            toggleBtn.innerHTML = isPassword ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+        });
+
+        // Form submit
+        const form = document.getElementById('login-form');
+        const submitBtn = document.getElementById('btn-submit');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showToast('Please enter both username and password', 'warning');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+            try {
+                const res = await API.post('/api/login', { username, password });
+                if (res.success) {
+                    showToast('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    showToast(res.message || 'Login failed', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard';
+                }
+            } catch (err) {
+                showToast(err.message || 'Login failed. Please check credentials.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard';
+            }
+        });
+    </script>
+</body>
+</html>

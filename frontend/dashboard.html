@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    <h2>EduManage</h2>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-category">Overview</li>
+                <li class="menu-item active">
+                    <a href="dashboard.html" class="menu-link">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-menu-category">Academic Modules</li>
+                <li class="menu-item">
+                    <a href="students.html" class="menu-link">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="courses.html" class="menu-link">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="teachers.html" class="menu-link">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-menu-category">Performance</li>
+                <li class="menu-item">
+                    <a href="attendance.html" class="menu-link">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="marks.html" class="menu-link">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Marks & Grades</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="analytics.html" class="menu-link">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Daily Analytics</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-snippet">
+                    <div class="user-avatar user-avatar-display">A</div>
+                    <div class="user-info">
+                        <div class="user-name user-name-display">Administrator</div>
+                        <div class="user-role">Super Admin</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <!-- Top Navbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-toggle-btn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h1>Dashboard</h1>
+                        <p>Welcome to Student Management Portal</p>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="datetime-badge" id="live-clock">
+                        <i class="fa-regular fa-clock"></i> Loading date...
+                    </div>
+                    <button class="btn-logout" title="Sign out of system">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Body -->
+            <main class="content-body">
+                <!-- Stat Metric Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span>Total Students</span>
+                            <h3 id="total-students">0</h3>
+                            <p><i class="fa-solid fa-arrow-trend-up"></i> Active Enrollments</p>
+                        </div>
+                        <div class="stat-icon icon-blue">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span>Total Courses</span>
+                            <h3 id="total-courses">0</h3>
+                            <p><i class="fa-solid fa-layer-group"></i> Active Programs</p>
+                        </div>
+                        <div class="stat-icon icon-purple">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span>Total Teachers</span>
+                            <h3 id="total-teachers">0</h3>
+                            <p><i class="fa-solid fa-user-tie"></i> Faculty Members</p>
+                        </div>
+                        <div class="stat-icon icon-amber">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span>Attendance Rate</span>
+                            <h3 id="total-attendance">0%</h3>
+                            <p id="attendance-subtext">Overall Presence</p>
+                        </div>
+                        <div class="stat-icon icon-green">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="quick-actions-bar">
+                    <span class="quick-actions-title">
+                        <i class="fa-solid fa-bolt" style="color: var(--warning);"></i> Quick Actions:
+                    </span>
+                    <button id="btn-quick-student" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-plus"></i> Add Student
+                    </button>
+                    <button id="btn-quick-face" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #0284c7, #2563eb); border: none;">
+                        <i class="fa-solid fa-camera"></i> Register Face
+                    </button>
+                    <button id="btn-quick-attendance" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-check"></i> Mark Attendance
+                    </button>
+                    <button id="btn-quick-course" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-plus"></i> Add Course
+                    </button>
+                    <button id="btn-quick-teacher" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-plus"></i> Add Teacher
+                    </button>
+                    <button id="btn-quick-marks" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-pen-to-square"></i> Enter Marks
+                    </button>
+                </div>
+
+                <!-- Dashboard Content Split Grid -->
+                <div class="dashboard-grid">
+                    <!-- Recent Students Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-users" style="color: var(--primary);"></i>
+                                Recently Enrolled Students
+                            </h3>
+                            <a href="students.html" class="btn btn-secondary btn-sm">
+                                View All Students <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="table-responsive" style="border: none;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student ID</th>
+                                            <th>Student Details</th>
+                                            <th>Biometric Face</th>
+                                            <th>Course</th>
+                                            <th>Year</th>
+                                            <th style="text-align: right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-students-tbody">
+                                        <tr>
+                                            <td colspan="6" class="empty-state">
+                                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                                <h4>Loading recent admissions...</h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Program Enrollment Breakdown -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-chart-column" style="color: var(--info);"></i>
+                                Enrollment by Course
+                            </h3>
+                            <a href="courses.html" class="btn btn-secondary btn-sm">Manage</a>
+                        </div>
+                        <div class="card-body" id="course-dist-list">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <p>Loading course statistics...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
