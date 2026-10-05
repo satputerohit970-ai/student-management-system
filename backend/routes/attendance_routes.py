@@ -411,10 +411,24 @@ _sift_detector = cv2.SIFT_create(nfeatures=400)
 _bf_matcher = cv2.BFMatcher()
 _face_descriptors_cache = {}
 
+def make_face_mask(h, w):
+    """
+    Creates an elliptical face mask focusing exclusively on facial landmarks
+    (eyes, eyebrows, nose, mouth, cheeks, chin) and completely zeroing out
+    the background room, walls, ceiling, and shoulders.
+    """
+    mask = np.zeros((h, w), dtype=np.uint8)
+    cx = w // 2
+    cy = int(h * 0.48)
+    axes = (int(w * 0.32), int(h * 0.40))
+    cv2.ellipse(mask, (cx, cy), axes, 0, 0, 360, 255, -1)
+    return mask
+
 def get_cached_student_features(student_id, face_data):
     """
     Returns precomputed SIFT keypoints & descriptors for registered student
-    in both normal and horizontally-flipped orientation (for webcam mirror immunity).
+    in both normal and horizontally-flipped orientation (for webcam mirror immunity),
+    using an elliptical mask to completely eliminate background room dependency.
     Automatically updates cache if student face_data changes.
     """
     if not face_data:
@@ -435,15 +449,18 @@ def get_cached_student_features(student_id, face_data):
 
         h, w = img.shape[:2]
         side = min(w, h)
-        box = int(side * 0.90)
+        box = int(side * 0.88)
         box = min(box, min(w, h))
         x1 = max(0, min(w // 2 - box // 2, w - box))
         y1 = max(0, min(int(h * 0.48) - box // 2, h - box))
         crop = img[y1:y1 + box, x1:x1 + box]
-        crop_f = cv2.flip(crop, 1)
+        mask = make_face_mask(crop.shape[0], crop.shape[1])
 
-        kp, des = _sift_detector.detectAndCompute(crop, None)
-        kp_f, des_f = _sift_detector.detectAndCompute(crop_f, None)
+        crop_f = cv2.flip(crop, 1)
+        mask_f = cv2.flip(mask, 1)
+
+        kp, des = _sift_detector.detectAndCompute(crop, mask)
+        kp_f, des_f = _sift_detector.detectAndCompute(crop_f, mask_f)
 
         features = {
             'kp_len': len(kp) if kp is not None else 0,
@@ -470,9 +487,9 @@ def extract_face_cv2(b64_str, scale=1.0):
             return None
         h, w = img.shape[:2]
         side = min(w, h)
-        box = int(side * 0.90 * scale)
+        box = int(side * 0.88 * scale)
         box = min(box, min(w, h))
-        cx, cy = w // 2, int(h * 0.50)
+        cx, cy = w // 2, int(h * 0.48)
         x1 = max(0, min(cx - box // 2, w - box))
         y1 = max(0, min(cy - box // 2, h - box))
         return img[y1:y1 + box, x1:x1 + box]
@@ -481,7 +498,7 @@ def extract_face_cv2(b64_str, scale=1.0):
 
 def calculate_image_similarity(b64_img1, b64_img2):
     """
-    Compare two base64 face snapshots using SIFT features.
+    Compare two base64 face snapshots using SIFT features with background masking.
     """
     try:
         features_reg = get_cached_student_features('temp', b64_img2)
@@ -492,7 +509,8 @@ def calculate_image_similarity(b64_img1, b64_img2):
         if live_crop is None:
             return 0.0
 
-        kp_live, des_live = _sift_detector.detectAndCompute(live_crop, None)
+        mask_live = make_face_mask(live_crop.shape[0], live_crop.shape[1])
+        kp_live, des_live = _sift_detector.detectAndCompute(live_crop, mask_live)
         if des_live is None or len(des_live) < 4:
             return 0.0
 
@@ -543,19 +561,23 @@ def recognize_face():
         if img_live is None:
             return jsonify({'success': False, 'matched': False, 'message': 'Could not decode camera image.'}), 400
 
-        # 2. Extract multi-scale SIFT features from live image (absorbs camera distance shifts)
+        # 2. Extract multi-scale & multi-offset SIFT features with face mask (immune to background changes)
         h_l, w_l = img_live.shape[:2]
         side_l = min(w_l, h_l)
         live_features_list = []
-        for sc in (0.85, 1.0, 1.15):
-            box_l = int(side_l * 0.90 * sc)
+        for sc in (0.80, 0.92, 1.05):
+            box_l = int(side_l * 0.88 * sc)
             box_l = min(box_l, min(w_l, h_l))
-            x1 = max(0, min(w_l // 2 - box_l // 2, w_l - box_l))
-            y1 = max(0, min(int(h_l * 0.50) - box_l // 2, h_l - box_l))
-            crop_l = img_live[y1:y1 + box_l, x1:x1 + box_l]
-            kp_l, des_l = _sift_detector.detectAndCompute(crop_l, None)
-            if des_l is not None and len(des_l) >= 4:
-                live_features_list.append((len(kp_l), des_l))
+            for dy in (-12, 0, 12):
+                cx = w_l // 2
+                cy = int(h_l * 0.48) + dy
+                x1 = max(0, min(cx - box_l // 2, w_l - box_l))
+                y1 = max(0, min(cy - box_l // 2, h_l - box_l))
+                crop_l = img_live[y1:y1 + box_l, x1:x1 + box_l]
+                mask_l = make_face_mask(crop_l.shape[0], crop_l.shape[1])
+                kp_l, des_l = _sift_detector.detectAndCompute(crop_l, mask_l)
+                if des_l is not None and len(des_l) >= 4:
+                    live_features_list.append((len(kp_l), des_l))
 
         if not live_features_list:
             return jsonify({
@@ -572,7 +594,7 @@ def recognize_face():
                 LEFT JOIN courses c ON s.course_id = c.id
                 WHERE s.id = %s AND s.has_face_registered = 1 AND s.face_data IS NOT NULL
             """, (target_student_id,))
-            threshold = 18.0
+            threshold = 16.0
             margin_required = 0.0
         else:
             students = query_db("""
@@ -581,8 +603,8 @@ def recognize_face():
                 LEFT JOIN courses c ON s.course_id = c.id
                 WHERE s.has_face_registered = 1 AND s.face_data IS NOT NULL
             """)
-            threshold = 20.0
-            margin_required = 6.0
+            threshold = 18.0
+            margin_required = 5.0
 
         if not students:
             return jsonify({
