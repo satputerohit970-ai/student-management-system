@@ -66,7 +66,7 @@ student-management-system/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/student-management-system.git
+git clone https://github.com/satputerohit970-ai/student-management-system.git
 ```
 
 ### 2. Open the Project
